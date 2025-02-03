@@ -1,9 +1,8 @@
-'use client'
+'use client';
 
-import "../../globals.css";
-import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
-import Link from "next/link";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
 
 type Product = {
   id: number;
@@ -21,12 +20,6 @@ type Category = {
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [newProduct, setNewProduct] = useState({
-    name: "",
-    price: 0,
-    stock: 0,
-    category_id: 0,
-  });
 
   // Cargar productos y categorías al montar el componente
   useEffect(() => {
@@ -36,9 +29,9 @@ export default function ProductsPage() {
 
   // Obtener productos desde Supabase
   const fetchProducts = async () => {
-    const { data, error } = await supabase.from("products").select("*");
+    const { data, error } = await supabase.from('products').select('*');
     if (error) {
-      console.error("Error fetching products:", error);
+      console.error('Error fetching products:', error);
     } else {
       setProducts(data || []);
     }
@@ -46,47 +39,23 @@ export default function ProductsPage() {
 
   // Obtener categorías desde Supabase
   const fetchCategories = async () => {
-    const { data, error } = await supabase.from("categories").select("*");
+    const { data, error } = await supabase.from('categories').select('*');
     if (error) {
-      console.error("Error fetching categories:", error);
+      console.error('Error fetching categories:', error);
     } else {
       setCategories(data || []);
     }
   };
 
-  // Añadir un nuevo producto
-  const handleAddProduct = async () => {
-    if (
-      newProduct.name.trim() !== "" &&
-      newProduct.price > 0 &&
-      newProduct.category_id > 0
-    ) {
-      const { data, error } = await supabase
-        .from("products")
-        .insert([newProduct])
-        .select();
-
-      if (error) {
-        console.error("Error adding product:", error);
-      } else {
-        setProducts([...products, data[0]]);
-        setNewProduct({ name: "", price: 0, stock: 0, category_id: 0 });
-      }
-    }
-  };
-
   // Eliminar un producto
   const handleDeleteProduct = async (id: number) => {
-    const { error } = await supabase
-      .from("products")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from('products').delete().eq('id', id);
 
     if (error) {
-      console.error("Error deleting product:", error);
+      console.error('Error deleting product:', error);
     } else {
       // Eliminar el producto de la lista visualmente
-      setProducts(products.filter(product => product.id !== id));
+      setProducts(products.filter((product) => product.id !== id));
     }
   };
 
@@ -94,58 +63,14 @@ export default function ProductsPage() {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold">Productos</h1>
-      </div>
-
-      {/* Formulario para añadir un producto */}
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-xl font-semibold mb-4">Añadir Nuevo Producto</h2>
-        <div className="space-y-4">
-          <input
-            type="text"
-            placeholder="Nombre del producto"
-            value={newProduct.name}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, name: e.target.value })
-            }
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            type="number"
-            placeholder="Precio"
-            value={newProduct.price}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })
-            }
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            type="number"
-            placeholder="Stock"
-            value={newProduct.stock}
-            onChange={(e) =>
-              setNewProduct({ ...newProduct, stock: parseInt(e.target.value) })
-            }
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <select
-            value={newProduct.category_id || ''} // Ensure a default value or empty string
-            onChange={(e) => setNewProduct({ ...newProduct, category_id: parseInt(e.target.value) || 0 })}
-            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <span>
+          <Link
+            href={'products/add'}
+            className="w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
-            <option value={0}>Selecciona una categoría</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={handleAddProduct}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            Añadir Producto
-          </button>
-        </div>
+            Agregar producto
+          </Link>
+        </span>
       </div>
 
       {/* Tabla de productos */}
@@ -181,13 +106,13 @@ export default function ProductsPage() {
                     {product.name}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    ${product.price.toFixed(2)}
+                    ${product.price ? product.price.toFixed(2) : '0.00'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {product.stock}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {category ? category.name : "Sin categoría"}
+                    {category ? category.name : 'Sin categoría'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <Link
