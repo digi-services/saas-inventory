@@ -1,6 +1,6 @@
 'use server';
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase-server';
 
 interface Response<T> {
   data: T[];

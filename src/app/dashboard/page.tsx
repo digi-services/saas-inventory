@@ -1,7 +1,8 @@
 'use client'; // Convertir en Client Component
 
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase-client"; // Cliente correcto
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 // Función para obtener el conteo de categorías desde Supabase
 const fetchCategoryCount = async () => {
