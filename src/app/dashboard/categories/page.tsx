@@ -2,7 +2,7 @@
 
 import "../../globals.css";
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase"; // Asegúrate de tener configurado Supabase
+import { supabase } from "@/lib/supabase-client"; // Asegúrate de tener configurado Supabase
 
 type Category = {
   id: number;
