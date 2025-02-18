@@ -1,31 +1,31 @@
 // src/app/dashboard/products/edit/[id]/page.tsx
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useRouter, useParams } from "next/navigation";
-import { supabase } from "@/lib/supabase-server";
+import { useEffect, useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import { supabase } from '@/lib/supabase-client';
 
 export default function EditProductPage() {
   const router = useRouter();
   const params = useParams();
   const productId = params.id; // Obtiene el ID del producto desde la URL
 
-  const [name, setName] = useState<string>("");
-  const [category, setCategory] = useState<string>("");
-  const [price, setPrice] = useState<string>("");
-  const [stock, setStock] = useState<string>("");
+  const [name, setName] = useState<string>('');
+  const [category, setCategory] = useState<string>('');
+  const [price, setPrice] = useState<string>('');
+  const [stock, setStock] = useState<string>('');
 
   // Cargar los datos del producto al iniciar la página
   useEffect(() => {
     const fetchProduct = async () => {
       const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .eq("id", productId)
+        .from('products')
+        .select('*')
+        .eq('id', productId)
         .single();
 
       if (error) {
-        console.error("Error fetching product:", error);
+        console.error('Error fetching product:', error);
       } else {
         setName(data.name);
         setCategory(data.category);
@@ -40,33 +40,38 @@ export default function EditProductPage() {
   // Manejar la actualización del producto
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+
     // Actualizar el producto en Supabase
     const { error } = await supabase
-      .from("products") // Nombre de la tabla
+      .from('products') // Nombre de la tabla
       .update({
         name, // Nuevo nombre
         category, // Nueva categoría
         price: parseFloat(price), // Nuevo precio (convertido a número)
         stock: parseInt(stock), // Nuevo stock (convertido a número)
       })
-      .eq("id", productId); // Filtra el producto por su ID
-  
+      .eq('id', productId); // Filtra el producto por su ID
+
     if (error) {
-      console.error("Error updating product:", error);
+      console.error('Error updating product:', error);
     } else {
       // Redirigir a la lista de productos después de actualizar
-      router.push("/dashboard/products");
+      router.push('/dashboard/products');
     }
   };
 
   return (
     <div className="w-full max-w-2xl mx-auto bg-white rounded-lg shadow-lg p-6">
       <h1 className="text-2xl font-semibold mb-4">Editar Producto</h1>
-      <p className="text-sm text-gray-500 mb-6">Modifica los detalles del producto</p>
+      <p className="text-sm text-gray-500 mb-6">
+        Modifica los detalles del producto
+      </p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700"
+          >
             Nombre
           </label>
           <input
@@ -79,7 +84,10 @@ export default function EditProductPage() {
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="category" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="category"
+            className="block text-sm font-medium text-gray-700"
+          >
             Categoría
           </label>
           <select
@@ -96,7 +104,10 @@ export default function EditProductPage() {
           </select>
         </div>
         <div className="space-y-2">
-          <label htmlFor="price" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="price"
+            className="block text-sm font-medium text-gray-700"
+          >
             Precio
           </label>
           <input
@@ -110,7 +121,10 @@ export default function EditProductPage() {
           />
         </div>
         <div className="space-y-2">
-          <label htmlFor="stock" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="stock"
+            className="block text-sm font-medium text-gray-700"
+          >
             Stock
           </label>
           <input

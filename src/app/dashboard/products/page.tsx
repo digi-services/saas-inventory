@@ -1,16 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '../../../lib/supabase-client';
 import Link from 'next/link';
-
-type Product = {
-  id: number;
-  name: string;
-  price: number;
-  stock: number;
-  category_id: number;
-};
+import { ProductRepository } from '@/services';
+import { Product } from '@/interfaces';
 
 type Category = {
   id: number;
@@ -21,42 +15,44 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  // Cargar productos y categorías al montar el componente
-  useEffect(() => {
-    fetchProducts();
-    fetchCategories();
-  }, []);
+  const productRepository = useMemo(() => new ProductRepository(supabase), []);
 
   // Obtener productos desde Supabase
-  const fetchProducts = async () => {
-    const { data, error } = await supabase.from('products').select('*');
-    if (error) {
-      console.error('Error fetching products:', error);
-    } else {
-      setProducts(data || []);
-    }
-  };
+  const fetchProducts = useCallback(async () => {
+    const productsData = await productRepository.getProducts();
+    setProducts(productsData);
+  }, [productRepository]);
 
   // Obtener categorías desde Supabase
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     const { data, error } = await supabase.from('categories').select('*');
     if (error) {
       console.error('Error fetching categories:', error);
     } else {
       setCategories(data || []);
     }
-  };
+  }, []);
+
+  // Cargar productos y categorías al montar el componente
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, [fetchProducts, fetchCategories]);
 
   // Eliminar un producto
-  const handleDeleteProduct = async (id: number) => {
-    const { error } = await supabase.from('products').delete().eq('id', id);
+  const handleDeleteProduct = async (id: string) => {
+    const deleteProductData = await productRepository.deleteProduct(id);
+    if (deleteProductData) {
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product.id !== id)
+      );
 
-    if (error) {
-      console.error('Error deleting product:', error);
-    } else {
-      // Eliminar el producto de la lista visualmente
-      setProducts(products.filter((product) => product.id !== id));
+      alert('Producto eliminado correctamente');
+
+      return;
     }
+
+    alert('Error al eliminar el producto');
   };
 
   return (
@@ -98,7 +94,7 @@ export default function ProductsPage() {
           <tbody className="divide-y divide-gray-200">
             {products.map((product) => {
               const category = categories.find(
-                (cat) => cat.id === product.category_id
+                (cat) => cat.id === product.categoryId
               );
               return (
                 <tr key={product.id}>
